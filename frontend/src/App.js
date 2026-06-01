@@ -51,6 +51,8 @@ const getProductImages = (product) => {
   return [product?.imageUrl, ...images].filter(Boolean).filter((image, index, list) => list.indexOf(image) === index).slice(0, 4);
 };
 
+const asArray = (value) => (Array.isArray(value) ? value : []);
+
 const fallbackProducts = [
   {
     _id: "sample-1",
@@ -110,8 +112,9 @@ function App() {
         api.getProducts(),
         api.getCategories()
       ]);
-      setProducts(productData);
-      setManagedCategories(categoryData);
+      const productsList = asArray(productData);
+      setProducts(productsList.length ? productsList : fallbackProducts);
+      setManagedCategories(asArray(categoryData));
     } catch (error) {
       setProducts(fallbackProducts);
       setManagedCategories([]);
@@ -172,10 +175,11 @@ function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const categories = useMemo(() => ["All", ...new Set(products.map((product) => product.category))], [products]);
+  const safeProducts = useMemo(() => asArray(products), [products]);
+  const categories = useMemo(() => ["All", ...new Set(safeProducts.map((product) => product.category).filter(Boolean))], [safeProducts]);
   const filteredProducts = useMemo(() => {
     const searchTerm = query.trim().toLowerCase();
-    return products.filter((product) => {
+    return safeProducts.filter((product) => {
       const searchableText = [
         product.name,
         product.category,
@@ -190,14 +194,14 @@ function App() {
       const matchesCategory = category === "All" || product.category === category;
       return matchesSearch && matchesCategory;
     });
-  }, [products, query, category]);
-  const featuredProducts = useMemo(() => products.filter((product) => product.featured), [products]);
+  }, [safeProducts, query, category]);
+  const featuredProducts = useMemo(() => safeProducts.filter((product) => product.featured), [safeProducts]);
   const homeProducts = useMemo(() => {
-    const selected = featuredProducts.length ? featuredProducts : products;
+    const selected = featuredProducts.length ? featuredProducts : safeProducts;
     return selected.slice(0, 4);
-  }, [featuredProducts, products]);
+  }, [featuredProducts, safeProducts]);
   const plantId = route.startsWith("/plants/") ? decodeURIComponent(route.replace("/plants/", "")) : "";
-  const selectedPlant = plantId ? products.find((product) => product._id === plantId) : null;
+  const selectedPlant = plantId ? safeProducts.find((product) => product._id === plantId) : null;
 
   if (route === "/admin") {
     return (
