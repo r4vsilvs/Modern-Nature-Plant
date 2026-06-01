@@ -353,6 +353,8 @@ function Hero({ navigate }) {
 }
 
 function HomePlantPreview({ products, hasFeatured, loading, navigate }) {
+  const productList = asArray(products);
+
   return (
     <section className="section collection home-preview" id="collection">
       <div className="featured-editorial">
@@ -375,7 +377,7 @@ function HomePlantPreview({ products, hasFeatured, loading, navigate }) {
         <div className="status-panel">Loading plants...</div>
       ) : (
         <div className="product-grid">
-          {products.map((product) => (
+          {productList.map((product) => (
             <ProductCard key={product._id} product={product} navigate={navigate} />
           ))}
         </div>
@@ -437,6 +439,8 @@ function PlantHighlights() {
 
 function PlantsPage({ products, categories, category, setCategory, query, setQuery, loading, navigate }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const productList = asArray(products);
+  const categoryList = asArray(categories);
 
   const chooseCategory = (item) => {
     setCategory(item);
@@ -488,7 +492,7 @@ function PlantsPage({ products, categories, category, setCategory, query, setQue
           <ChevronDown size={16} />
         </button>
         <div className={`category-row filter-menu ${filtersOpen ? "open" : ""}`}>
-          {categories.map((item) => (
+          {categoryList.map((item) => (
             <button
               key={item}
               className={item === category ? "active" : ""}
@@ -502,9 +506,9 @@ function PlantsPage({ products, categories, category, setCategory, query, setQue
 
       {loading ? (
         <div className="status-panel">Loading plants...</div>
-      ) : products.length ? (
+      ) : productList.length ? (
         <div className="product-grid">
-          {products.map((product) => (
+          {productList.map((product) => (
             <ProductCard key={product._id} product={product} navigate={navigate} />
           ))}
         </div>
@@ -519,7 +523,8 @@ function PlantsPage({ products, categories, category, setCategory, query, setQue
 }
 
 function FeaturedStrip({ products, navigate }) {
-  if (!products.length) return null;
+  const productList = asArray(products);
+  if (!productList.length) return null;
 
   return (
     <section className="featured-strip" aria-label="Featured plants">
@@ -528,7 +533,7 @@ function FeaturedStrip({ products, navigate }) {
         <h2>Popular plants for modern rooms.</h2>
       </div>
       <div className="featured-list">
-        {products.slice(0, 3).map((product) => (
+        {productList.slice(0, 3).map((product) => (
           <article key={product._id} className="featured-mini" onClick={() => navigate(`/plants/${encodeURIComponent(product._id)}`)}>
             <img src={getProductImages(product)[0] || product.imageUrl} alt={product.name} />
             <div>
@@ -770,6 +775,8 @@ function Footer({ navigate }) {
 }
 
 function AdminDashboard({ token, setToken, products, categories, reload, navigate }) {
+  const productList = asArray(products);
+  const categoryList = asArray(categories);
   const [loginForm, setLoginForm] = useState({ email: "", password: "" });
   const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState("");
@@ -1002,7 +1009,7 @@ function AdminDashboard({ token, setToken, products, categories, reload, navigat
           <input placeholder="Plant name" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} required />
           <select value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })} required>
             <option value="">Select category</option>
-            {categories.map((item) => (
+            {categoryList.map((item) => (
               <option key={item._id} value={item.name}>{item.name}</option>
             ))}
           </select>
@@ -1056,7 +1063,7 @@ function AdminDashboard({ token, setToken, products, categories, reload, navigat
           <form className="category-manager" onSubmit={addCategory}>
             <div>
               <h2>Categories</h2>
-              <span>{categories.length} saved</span>
+              <span>{categoryList.length} saved</span>
             </div>
             <label className="category-input-row">
               <input
@@ -1067,7 +1074,7 @@ function AdminDashboard({ token, setToken, products, categories, reload, navigat
               <button type="submit">Add</button>
             </label>
             <div className="category-list">
-              {categories.map((item) => (
+              {categoryList.map((item) => (
                 <span key={item._id}>
                   {editingCategoryId === item._id ? (
                     <div className="inline-category-edit">
@@ -1099,9 +1106,9 @@ function AdminDashboard({ token, setToken, products, categories, reload, navigat
 
           <div className="admin-heading">
             <h2>Current catalog</h2>
-            <span>{products.length} plants</span>
+            <span>{productList.length} plants</span>
           </div>
-          {products.map((product) => (
+          {productList.map((product) => (
             <article key={product._id} className="admin-product">
               <img src={getProductImages(product)[0] || product.imageUrl} alt={product.name} />
               <div>
