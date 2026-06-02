@@ -10,10 +10,17 @@ const request = async (path, options = {}) => {
     body: options.body ? JSON.stringify(options.body) : undefined
   });
 
-  const data = await response.json().catch(() => ({}));
+  const contentType = response.headers.get("content-type") || "";
+  const data = contentType.includes("application/json")
+    ? await response.json().catch(() => ({}))
+    : null;
 
   if (!response.ok) {
-    throw new Error(data.message || "Request failed");
+    throw new Error(data?.message || "Request failed");
+  }
+
+  if (data === null) {
+    throw new Error("API did not return JSON");
   }
 
   return data;
