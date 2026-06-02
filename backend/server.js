@@ -17,7 +17,13 @@ connectDB().catch(() => {
   console.log("Start MongoDB and check MONGO_URI before using database routes.");
 });
 
-app.use(cors());
+app.use(cors({
+  origin: true,
+  credentials: false,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+app.options("*", cors());
 app.use(express.json({ limit: "1mb" }));
 
 app.get("/", (req, res) => {
